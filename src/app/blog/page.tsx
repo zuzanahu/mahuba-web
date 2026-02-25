@@ -1,32 +1,24 @@
-import fs from "fs";
-import { Metadata } from "next";
+import { db } from "@/db";
+import { posts } from "@/db/schema";
+import { eq } from "drizzle-orm";
 import Link from "next/link";
-import path from "path";
 
-export const metadata: Metadata = {
-  title: "Blog",
-  description: "Články o výživě a zdraví",
-};
-
-const BLOG_DIR = path.join(process.cwd(), "src/content/blog");
-
-export default function BlogPage() {
-  const files = fs.readdirSync(BLOG_DIR);
-
-  const posts = files.map((file) => {
-    const slug = file.replace(".mdx", "");
-    return { slug };
-  });
+export default async function BlogPage() {
+  const publishedPosts = await db
+    .select()
+    .from(posts)
+    .where(eq(posts.published, true));
 
   return (
     <>
       <h1>Blog</h1>
+
+      {publishedPosts.length === 0 && <p>No posts yet.</p>}
+
       <ul>
-        {posts.map((post) => (
-          <li key={post.slug}>
-            <Link href={`/blog/${post.slug}`}>
-              {post.slug.replace(/-/g, " ")}
-            </Link>
+        {publishedPosts.map((post) => (
+          <li key={post.id}>
+            <Link href={`/blog/${post.slug}`}>{post.title}</Link>
           </li>
         ))}
       </ul>

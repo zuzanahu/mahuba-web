@@ -22,7 +22,6 @@ export async function createPost(formData: FormData) {
     published: false,
   });
 
-  // zneplatní cache stránky se seznamem postů
   revalidatePath("/admin/posts");
   revalidatePath("/blog");
 
@@ -38,7 +37,20 @@ export async function deletePost(formData: FormData) {
 
   await db.delete(posts).where(eq(posts.id, id));
 
-  // okamžitě zneplatní cache
+  revalidatePath("/admin/posts");
+  revalidatePath("/blog");
+}
+
+export async function togglePublish(formData: FormData) {
+  const id = Number(formData.get("id"));
+  const published = formData.get("published") === "true";
+
+  if (!id) {
+    throw new Error("Missing post id");
+  }
+
+  await db.update(posts).set({ published }).where(eq(posts.id, id));
+
   revalidatePath("/admin/posts");
   revalidatePath("/blog");
 }
