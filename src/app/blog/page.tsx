@@ -1,5 +1,6 @@
 import fs from "fs";
 import { Metadata } from "next";
+import Link from "next/link";
 import path from "path";
 
 export const metadata: Metadata = {
@@ -23,7 +24,9 @@ export default function BlogPage() {
       <ul>
         {posts.map((post) => (
           <li key={post.slug}>
-            <a href={`/blog/${post.slug}`}>{post.slug.replace(/-/g, " ")}</a>
+            <Link href={`/blog/${post.slug}`}>
+              {post.slug.replace(/-/g, " ")}
+            </Link>
           </li>
         ))}
       </ul>
