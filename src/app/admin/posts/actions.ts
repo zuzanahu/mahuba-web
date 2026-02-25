@@ -54,3 +54,28 @@ export async function togglePublish(formData: FormData) {
   revalidatePath("/admin/posts");
   revalidatePath("/blog");
 }
+
+export async function updatePost(formData: FormData) {
+  const id = Number(formData.get("id"));
+  const title = formData.get("title") as string;
+  const slug = formData.get("slug") as string;
+  const content = formData.get("content") as string;
+
+  if (!id || !title || !slug || !content) {
+    throw new Error("Missing fields");
+  }
+
+  await db
+    .update(posts)
+    .set({
+      title,
+      slug,
+      content,
+    })
+    .where(eq(posts.id, id));
+
+  revalidatePath("/admin/posts");
+  revalidatePath("/blog");
+
+  redirect("/admin/posts");
+}

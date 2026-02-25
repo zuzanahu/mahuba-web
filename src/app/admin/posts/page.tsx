@@ -31,6 +31,8 @@ export default async function AdminPostsPage() {
                 {post.published ? "Unpublish" : "Publish"}
               </button>
             </form>
+            {/* Edit */}
+            <Link href={`/admin/posts/edit/${post.id}`}>Edit</Link>{" "}
             {/* Delete */}
             <form
               action={deletePost}
