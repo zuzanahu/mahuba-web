@@ -3,8 +3,10 @@
 import { db } from "@/db";
 import { posts } from "@/db/schema";
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
+// At the end of every action revalidate static routes.
+// Just redirecting is not enough, new changes won't be visible to the user.
+import { revalidatePath } from "next/cache";
 
 export async function createPost(formData: FormData) {
   const title = formData.get("title") as string;
@@ -23,8 +25,6 @@ export async function createPost(formData: FormData) {
   });
 
   revalidatePath("/admin/posts");
-  revalidatePath("/blog");
-
   redirect("/admin/posts");
 }
 
@@ -77,5 +77,5 @@ export async function updatePost(formData: FormData) {
   revalidatePath("/admin/posts");
   revalidatePath("/blog");
 
-  redirect("/admin/posts");
+  // TBD let the user know the post was updated successfully
 }
