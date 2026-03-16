@@ -1,7 +1,8 @@
 import { db } from "@/db";
 import { posts } from "@/db/schema";
 import Link from "next/link";
-import { deletePost, togglePublish } from "./actions";
+import { deletePost } from "@editor/deletePost";
+import { togglePublish } from "@editor/togglePublish";
 
 export default async function AdminPostsPage() {
   const allPosts = await db.select().from(posts);

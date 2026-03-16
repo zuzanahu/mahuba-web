@@ -1,0 +1,22 @@
+{
+  "entryPoints": ["src"],
+  "entryPointStrategy": "expand",
+  "out": "docs",
+  "theme": "default",
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/node_modules/**",
+    "**/.next/**"
+  ],
+  "excludeInternal": true,
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "readme": "README.md",
+  "githubPages": false,
+  "cleanOutputDir": true,
+  "validation": {
+    "notDocumented": false,
+    "invalidLink": false
+  }
+}
