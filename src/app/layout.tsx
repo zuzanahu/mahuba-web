@@ -20,7 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="cs" className={inter.className}>
-      <body>
+      <body className="p-2">
         <header>
           <nav>
             <Link href="/">Domů</Link>
