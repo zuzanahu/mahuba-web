@@ -2,7 +2,6 @@
 
 import { db } from "@/db";
 import { NewPost, posts } from "@/db/schema";
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 /**
@@ -19,9 +18,7 @@ import { redirect } from "next/navigation";
  * {@link togglePublish} after creation.
  *
  * After a successful insert the function:
- * 1. Calls `revalidatePath("/admin/posts")` so that the admin listing reflects
- *    the new post immediately.
- * 2. Calls `redirect("/admin/posts")` to navigate the user back to the listing.
+ * Calls `redirect("/admin/posts")` to navigate the user back to the listing.
  *
  * @param post - The data for the new post, conforming to {@link NewPost}.
  *   The `published`, `id`, and `createdAt` fields are optional because they
@@ -49,6 +46,5 @@ export async function createPost(post: NewPost) {
     published: false,
   });
 
-  revalidatePath("/admin/posts");
   redirect("/admin/posts");
 }

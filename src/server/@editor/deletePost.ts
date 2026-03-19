@@ -13,12 +13,8 @@ import { revalidatePath } from "next/cache";
  * directly to a `<form action={deletePost}>` element in the admin UI — the form
  * must include a hidden `<input name="id" />` field carrying the numeric post id.
  *
- * After a successful deletion the function revalidates both:
+ * After a successful deletion the function revalidates:
  * - `/admin/posts` — so the admin listing no longer shows the deleted post.
- * - `/blog` — so the public blog index is updated immediately.
- *
- * Individual post pages (e.g. `/blog/[slug]`) will return a 404 automatically
- * once the row is gone from the database, so no per-slug revalidation is needed.
  *
  * @param formData - The `FormData` submitted by the form. Must contain:
  *   - `id` — The numeric primary key of the post to delete (as a string, since
@@ -51,5 +47,4 @@ export async function deletePost(formData: FormData) {
   await db.delete(posts).where(eq(posts.id, id));
 
   revalidatePath("/admin/posts");
-  revalidatePath("/blog");
 }

@@ -46,8 +46,7 @@ export interface EditPostEditorProps {
  * When the user clicks **Save** inside {@link BlockEditor}, the `onSave`
  * callback fires with the current {@link PostContent}. `EditPostEditor` then
  * calls the {@link updatePost} server action with the post `id`, the current
- * `title`, `slug`, and `content`. After a successful update, Next.js
- * revalidates `/admin/posts` and `/blog`.
+ * `title`, `slug`, and `content`.
  *
  * ### Relationship to the create flow
  * This component is the edit-mode counterpart of {@link NewPostEditor}.

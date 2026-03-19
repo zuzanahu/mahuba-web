@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { db } from "@/db";
 import { posts } from "@/db/schema";
 import Link from "next/link";

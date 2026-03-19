@@ -4,7 +4,6 @@ import { db } from "@/db";
 import { posts } from "@/db/schema";
 import { PostContent } from "@editor/PostContent";
 import { eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
 
 /**
  * Server action that updates the metadata and content of an existing blog post.
@@ -22,13 +21,6 @@ import { revalidatePath } from "next/cache";
  *
  * If the sanitised slug is an empty string the action throws immediately,
  * preventing a row with an invalid slug from being written.
- *
- * After a successful update the function revalidates:
- * - `/admin/posts` — so the admin listing reflects the updated metadata.
- * - `/blog` — so the public blog index reflects any title / slug changes.
- *
- * Individual post pages (e.g. `/blog/[slug]`) will serve fresh content on the
- * next request because Next.js will re-fetch the updated row from the database.
  *
  * @param data - An object describing the update to apply:
  *   - `id` — Numeric primary key of the post to update (see {@link Post}).
@@ -69,7 +61,4 @@ export async function updatePost(data: {
       content: data.content,
     })
     .where(eq(posts.id, data.id));
-
-  revalidatePath("/admin/posts");
-  revalidatePath("/blog");
 }

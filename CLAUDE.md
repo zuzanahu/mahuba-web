@@ -69,8 +69,6 @@ All mutations are Next.js Server Actions in `src/server/@editor/`:
 - `deletePost` — deletes by id
 - `togglePublish` — flips `published` flag
 
-All actions call `revalidatePath` on both `/admin/posts` and `/blog` to keep both in sync.
-
 ### Runtime type guards
 
 `src/utils/@editor/` has guards for deserializing DB JSON back into typed objects: `isPostContent` → `isRichTextBlock` → `isJSONContent`. Use these when reading `post.content` from the DB.

@@ -19,10 +19,8 @@ import { revalidatePath } from "next/cache";
  * (`published === true`), the form should submit `published="false"` so that
  * this action sets it to `false`.
  *
- * After a successful update the function revalidates both:
+ * After a successful update the function revalidates:
  * - `/admin/posts` — so the admin listing reflects the new state immediately.
- * - `/blog` — so the public blog index is updated immediately (a post that was
- *   just unpublished will disappear, and a newly published post will appear).
  *
  * @param formData - The `FormData` submitted by the form. Must contain:
  *   - `id` — The numeric primary key of the post (as a string). Parsed with
@@ -59,5 +57,4 @@ export async function togglePublish(formData: FormData) {
   await db.update(posts).set({ published }).where(eq(posts.id, id));
 
   revalidatePath("/admin/posts");
-  revalidatePath("/blog");
 }
