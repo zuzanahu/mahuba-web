@@ -1,3 +1,4 @@
+import { DB_PATH } from "@/constants/dbPath";
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 
@@ -15,7 +16,7 @@ import { drizzle } from "drizzle-orm/better-sqlite3";
  *
  * @see {@link https://github.com/WiseLibs/better-sqlite3/blob/master/docs/api.md | better-sqlite3 API docs}
  */
-const sqlite = new Database("db.sqlite");
+const sqlite = new Database(DB_PATH);
 
 /**
  * The application-wide Drizzle ORM database client.

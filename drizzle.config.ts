@@ -1,3 +1,4 @@
+import { DB_PATH } from "@/constants/dbPath";
 import { defineConfig } from "drizzle-kit";
 
 export default defineConfig({
@@ -5,6 +6,6 @@ export default defineConfig({
   schema: "./src/db/schema.ts",
   out: "./drizzle",
   dbCredentials: {
-    url: "./db.sqlite",
+    url: DB_PATH,
   },
 });
