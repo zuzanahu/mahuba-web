@@ -1,29 +1,58 @@
-# Mahuba
+# Mahuba Web
 
-A personal blog about health, nutrition and alternative medicine.
+A fullstack content platform and CMS built with **Next.js**, **React** and **TypeScript**.
 
-## Future Plans
+> [!WARNING]
+> Work in progress — currently building the MVP
 
-The future plans for Mahuba include:
+## About the Project
 
-### User section
+This project is intended for personal blogs powered by a custom-built admin dashboard. The focus is on clean architecture, modern Next.js patterns (such as Server Actions and the App Router), and a smooth content editing experience.
 
-- Downloading ebooks made by the author of the blog
-- Paid video lectures
-- Scheduling in person consultations
+## Tech Stack
 
-### Admin section
+- **Framework:** Next.js (App Router)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS
+- **Database:** SQLite + Drizzle ORM
+- **Editor:** Tiptap (block-based rich text)
 
-- Block editor for creating blog posts
-  - Support for different block types
-    - Paragraphs ✅
-    - Images
-    - Quotes
-    - Videos
-  - The option to drag and drop blocks
-  - Adding up to three columns for block alignment
-  - Deny entry to unauthorized users
+## Features
 
-## Scripts
+### Admin Panel (MVP)
+- Authentication with protected `/admin` routes and middleware session check
+- Block-based article editor (paragraph + image blocks)
+- Autosave with debounce — content saves automatically as you type
+- Draft / publish / archive workflow
+- Article management — create, edit, delete with confirmation
+- Metadata per article: title, slug (auto-generated + editable), cover image, excerpt, meta description
+- Dashboard with filtering by title, status and date
 
-`npm run start` - Runs migrations and then starts the application. Carefull when deploying because if multiple migrations run and the last one fails, the database may be left in an inconsistent state. Beacause the migrations that passed will be applied and the one that failed will not. Changing the data in db to resolve inconsistencies could be done maybe with a custom migration using `drizzle-kit generate --custom --name=seed-users` which will generate an empty migration ready for custom SQL.
+### Public Blog (MVP)
+- List of published articles with cover images and dates
+- Dynamic article pages at `/blog/[slug]`
+- Dynamic SEO metadata (title + description) per article
+- 404 handling for non-existent slugs
+
+## Architecture Highlights
+
+- **Server Actions** for mutations — RPC-style transport using POST method
+- **Status-based post model** (`draft | published`) — designed for extensibility from the start
+- **Block content** stored as a JSON array — flexible, renderer-agnostic document model powered by Tiptap (ProseMirror), easy to extend with new block types
+- **Admin routes use post `id`** instead of slug — stays stable when the slug changes
+- **`publishedAt` column** separate from `createdAt` — used for correct chronological ordering on the public blog
+
+## Getting Started
+
+```bash
+npm install
+npm run build
+npm run start
+```
+
+## Roadmap
+
+- [ ] Quote, video and embed blocks
+- [ ] Drag-and-drop block reordering
+- [ ] Multi-column block layout
+- [ ] Post categories & filtering by category
