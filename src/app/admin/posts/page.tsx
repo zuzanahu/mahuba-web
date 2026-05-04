@@ -35,8 +35,7 @@ export default async function AdminPostsPage() {
               </button>
             </form>
             {/* Edit */}
-            <Link href={`/admin/posts/edit/${post.id}`}>Edit</Link>{" "}
-            {/* Delete */}
+            <Link href={`/admin/posts/${post.id}`}>Edit</Link> {/* Delete */}
             <form
               action={deletePost}
               style={{ display: "inline", marginLeft: 8 }}

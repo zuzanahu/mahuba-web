@@ -60,7 +60,7 @@ export interface EditPostEditorProps {
  *
  * @example
  * ```tsx
- * // Rendered by the Next.js page at /admin/posts/edit/[id]:
+ * // Rendered by the Next.js page at /admin/posts/[id]:
  * export default async function EditPostPage({ params }) {
  *   const post = await fetchPost(params.id);
  *   return <EditPostEditor initialPost={post} />;
