@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "mkdir data && next build",
+    "build": "mkdir -p data && next build",
     "start": "drizzle-kit migrate && next start",
     "lint": "eslint",
     "docs": "typedoc"
