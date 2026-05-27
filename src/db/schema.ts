@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 
 /**
@@ -14,7 +15,9 @@ import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
  * - `passwordHash` — Bcrypt (or equivalent) hash of the user's password.
  *   **Never store plaintext passwords.**
  * - `role` — Access-control role; defaults to `"admin"`.
- * - `createdAt` — UTC timestamp recorded when the row is first inserted.
+ * - `createdAt` — UTC Unix timestamp (seconds) set by SQLite on insert via
+ *   `unixepoch('now')`. Using a SQL-level default means the value is set
+ *   correctly even when inserting outside Drizzle (e.g. Drizzle Studio, raw SQL).
  */
 export const users = sqliteTable("users", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -23,7 +26,7 @@ export const users = sqliteTable("users", {
   role: text("role").notNull().default("admin"),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
-    .default(new Date()),
+    .default(sql`(unixepoch('now'))`),
 });
 
 /**
@@ -47,7 +50,9 @@ export const users = sqliteTable("users", {
  * - `published` — When `true` the post is visible on the public blog; when
  *   `false` it is only accessible in the admin panel. Toggled via
  *   {@link togglePublish}.
- * - `createdAt` — UTC timestamp recorded when the row is first inserted.
+ * - `createdAt` — UTC Unix timestamp (seconds) set by SQLite on insert via
+ *   `unixepoch('now')`. Using a SQL-level default means the value is set
+ *   correctly even when inserting outside Drizzle (e.g. Drizzle Studio, raw SQL).
  */
 export const posts = sqliteTable("posts", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -57,7 +62,7 @@ export const posts = sqliteTable("posts", {
   published: integer("published", { mode: "boolean" }).notNull().default(false),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
-    .default(new Date()),
+    .default(sql`(unixepoch('now'))`),
 });
 
 /**
