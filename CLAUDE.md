@@ -35,7 +35,7 @@ Two domain aliases are configured in `tsconfig.json`:
 
 `src/db/schema.ts` defines two tables:
 
-- **posts** — `id`, `title`, `slug` (unique), `content` (JSON), `published` (boolean), `createdAt`
+- **posts** — `id`, `title`, `slug` (unique), `excerpt`, `coverImage`, `content` (JSON), `status` (`"draft"|"published"|"archived"`), `createdAt`, `publishedAt`, `archivedAt`
 - **users** — `id`, `email`, `passwordHash`, `role`, `createdAt` (auth not yet implemented)
 
 Post content is stored as `PostContent` (a `Block[]` array serialized to JSON). Currently only `RichTextBlock` exists, but the type system is designed for extension.
@@ -67,7 +67,7 @@ All mutations are Next.js Server Actions in `src/server/@editor/`:
 - `createPost` — inserts post, redirects to `/admin/posts`
 - `updatePost` — updates title/slug/content, sanitizes slug
 - `deletePost` — deletes by id
-- `togglePublish` — flips `published` flag
+- `togglePublish` — transitions status between `"draft"` and `"published"`, sets/clears `publishedAt`
 
 ### Runtime type guards
 

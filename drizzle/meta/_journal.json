@@ -15,6 +15,20 @@
       "when": 1779881470620,
       "tag": "0001_sticky_vapor",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1779892277459,
+      "tag": "0002_shallow_photon",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1779893388560,
+      "tag": "0003_clear_landau",
+      "breakpoints": true
     }
   ]
 }

@@ -57,7 +57,7 @@ export function NewPostEditor() {
       <BlockEditor
         initialPostContent={[]}
         onSave={(content) =>
-          createPost({ title, slug, content, published: false })
+          createPost({ title, slug, content })
         }
       />
     </div>

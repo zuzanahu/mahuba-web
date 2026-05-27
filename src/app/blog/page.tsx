@@ -2,14 +2,15 @@ export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
 import { posts } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import Link from "next/link";
 
 export default async function BlogPage() {
   const publishedPosts = await db
     .select()
     .from(posts)
-    .where(eq(posts.published, true));
+    .where(eq(posts.status, "published"))
+    .orderBy(desc(posts.publishedAt));
 
   return (
     <>

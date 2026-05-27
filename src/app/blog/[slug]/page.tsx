@@ -26,7 +26,7 @@ export default async function BlogPostPage({
     );
   }
 
-  if (!post || post.published !== true) {
+  if (!post || post.status !== "published") {
     notFound();
   }
 

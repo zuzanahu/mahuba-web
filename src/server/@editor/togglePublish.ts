@@ -1,44 +1,33 @@
 "use server";
 
 import { db } from "@/db";
-import { posts } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { posts, type PostStatus } from "@/db/schema";
+import { eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 /**
- * Server action that toggles the `published` state of a blog post.
+ * Server action that transitions a post's status between `"draft"` and
+ * `"published"`. Also sets or clears `publishedAt` accordingly.
  *
  * @remarks
- * This is a Next.js Server Action (`"use server"`). It is intended to be bound
- * directly to a `<form action={togglePublish}>` element in the admin UI — the
- * form must include hidden `<input>` fields for `id` and `published`.
+ * This is a Next.js Server Action (`"use server"`). Bind it to a
+ * `<form action={togglePublish}>` with hidden fields for `id` and `status`.
  *
- * The desired **next** published state is read from the form data, so the
- * caller is responsible for passing the inverted value of the post's current
- * `published` flag. For example, if the post is currently published
- * (`published === true`), the form should submit `published="false"` so that
- * this action sets it to `false`.
- *
- * After a successful update the function revalidates:
- * - `/admin/posts` — so the admin listing reflects the new state immediately.
+ * After a successful update revalidates `/admin/posts`.
  *
  * @param formData - The `FormData` submitted by the form. Must contain:
- *   - `id` — The numeric primary key of the post (as a string). Parsed with
- *     `Number()`.
- *   - `published` — The **desired next** published state as the string
- *     `"true"` or `"false"`. Compared strictly with `=== "true"`.
+ *   - `id` — Numeric primary key of the post (as a string).
+ *   - `status` — The desired next status: `"published"` or `"draft"`.
  *
- * @throws {Error} With the message `"Missing post id"` if the `id` field is
- *   absent, empty, or parses to `0` / `NaN`.
- * @throws {Error} If the underlying database operation fails.
+ * @throws {Error} With the message `"Missing post id"` if `id` is absent or
+ *   zero.
  *
  * @example
  * ```tsx
- * // Inside a Server / Client Component:
  * <form action={togglePublish}>
  *   <input type="hidden" name="id" value={post.id} />
- *   <input type="hidden" name="published" value={post.published ? "false" : "true"} />
- *   <button type="submit">{post.published ? "Unpublish" : "Publish"}</button>
+ *   <input type="hidden" name="status" value={post.status === "published" ? "draft" : "published"} />
+ *   <button type="submit">{post.status === "published" ? "Unpublish" : "Publish"}</button>
  * </form>
  * ```
  *
@@ -48,13 +37,21 @@ import { revalidatePath } from "next/cache";
  */
 export async function togglePublish(formData: FormData) {
   const id = Number(formData.get("id"));
-  const published = formData.get("published") === "true";
+  const nextStatus = formData.get("status") as PostStatus;
 
   if (!id) {
     throw new Error("Missing post id");
   }
 
-  await db.update(posts).set({ published }).where(eq(posts.id, id));
+  const isPublishing = nextStatus === "published";
+
+  await db
+    .update(posts)
+    .set({
+      status: nextStatus,
+      publishedAt: isPublishing ? sql`(unixepoch('now'))` : null,
+    })
+    .where(eq(posts.id, id));
 
   revalidatePath("/admin/posts");
 }

@@ -18,7 +18,7 @@ export default async function AdminPostsPage() {
         {allPosts.map((post) => (
           <li key={post.id}>
             <strong>{post.title}</strong> ({post.slug}){" "}
-            {post.published ? "🟢 published" : "⚪ draft"}
+            {post.status === "published" ? "🟢 published" : post.status === "archived" ? "🗄️ archived" : "⚪ draft"}
             {/* Publish / Unpublish */}
             <form
               action={togglePublish}
@@ -27,11 +27,11 @@ export default async function AdminPostsPage() {
               <input type="hidden" name="id" value={post.id} />
               <input
                 type="hidden"
-                name="published"
-                value={post.published ? "false" : "true"}
+                name="status"
+                value={post.status === "published" ? "draft" : "published"}
               />
               <button type="submit">
-                {post.published ? "Unpublish" : "Publish"}
+                {post.status === "published" ? "Unpublish" : "Publish"}
               </button>
             </form>
             {/* Edit */}

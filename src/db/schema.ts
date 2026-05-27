@@ -45,24 +45,32 @@ export const users = sqliteTable("users", {
  *   post page.
  * - `slug` — URL-safe identifier used in the public route `/blog/[slug]`.
  *   Must be unique across all posts.
+ * - `excerpt` — Optional short summary shown in blog listings.
+ * - `coverImage` — Optional relative path to the cover image (e.g. `/uploads/foo.jpg`).
  * - `content` — Block editor content stored as a JSON array of {@link Block}
  *   objects (see {@link PostContent}).
- * - `published` — When `true` the post is visible on the public blog; when
- *   `false` it is only accessible in the admin panel. Toggled via
- *   {@link togglePublish}.
+ * - `status` — Lifecycle state: `"draft"` | `"published"` | `"archived"`.
  * - `createdAt` — UTC Unix timestamp (seconds) set by SQLite on insert via
- *   `unixepoch('now')`. Using a SQL-level default means the value is set
- *   correctly even when inserting outside Drizzle (e.g. Drizzle Studio, raw SQL).
+ *   `unixepoch('now')`.
+ * - `publishedAt` — Set when the post transitions to `"published"`. Used for
+ *   chronological ordering on the public blog. `null` while in draft/archived.
+ * - `archivedAt` — Set when the post transitions to `"archived"`. `null` otherwise.
  */
+export type PostStatus = "draft" | "published" | "archived";
+
 export const posts = sqliteTable("posts", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   title: text("title").notNull(),
   slug: text("slug").notNull().unique(),
+  excerpt: text("excerpt"),
+  coverImage: text("cover_image"),
   content: text("content", { mode: "json" }).notNull(),
-  published: integer("published", { mode: "boolean" }).notNull().default(false),
+  status: text("status").$type<PostStatus>().notNull().default("draft"),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
     .default(sql`(unixepoch('now'))`),
+  publishedAt: integer("published_at", { mode: "timestamp" }),
+  archivedAt: integer("archived_at", { mode: "timestamp" }),
 });
 
 /**
