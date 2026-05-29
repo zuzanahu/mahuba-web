@@ -3,7 +3,7 @@ import { posts } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { isPostContent } from "@editor/isPostContent";
-import { RichTextBlockRenderer } from "@/components/@blog/RichTextBlockRenderer";
+import { RichTextBlockRenderer } from "@blog/RichTextBlockRenderer";
 
 export default async function BlogPostPage({
   params,
