@@ -25,10 +25,11 @@ npx drizzle-kit studio     # Open Drizzle Studio (DB browser)
 
 ### Path Aliases
 
-Two domain aliases are configured in `tsconfig.json`:
+Three domain aliases are configured in `tsconfig.json`:
 
 - `@editor/*` — resolves to components, types, server actions, and utils under `@editor/` directories
 - `@blog/*` — resolves to components, types, server actions, and utils under `@blog/` directories
+- `@admin/*` — resolves to components, types, server actions, and utils under `@admin/` directories
 - `@/*` — resolves to `src/*`
 
 ### Data Model
@@ -89,3 +90,36 @@ Tailwind CSS v4 (imported via `@import "tailwindcss"` in `globals.css`). The `@t
 ### Commenting
 
 Comments should adhere to tsdoc specification.
+
+## UI Patterns
+
+**Rule: when you notice a class pattern appearing in more than one place, add it to the table below before finishing the task.**
+
+### Design tokens
+
+| Token | CSS variable | Tailwind utility | Value |
+|---|---|---|---|
+| Nav height | `--spacing-nav` | `h-nav`, `top-nav` | `3rem` (48 px) |
+
+### Button classes
+
+| Role | Class string |
+|---|---|
+| Primary / dark | `h-9 px-3 text-sm flex items-center bg-gray-900 text-white rounded-md hover:bg-gray-700 disabled:opacity-50` |
+| Outline | `h-9 px-3 text-sm flex items-center border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50` |
+| Destructive | `h-9 px-3 text-sm flex items-center bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50` |
+| Destructive text | `text-sm text-red-400 hover:text-red-600 transition-colors` |
+| Inline editor affordance | `px-3 py-2 text-sm text-gray-400 border border-dashed border-gray-300 rounded-md hover:border-gray-400 hover:text-gray-600 transition-colors` |
+
+### Input / select class
+
+```
+border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-gray-400
+```
+
+Add `resize-none` for textareas. Append `border-red-400 focus:ring-red-400` for validation errors.
+
+### Border-radius conventions
+
+- `rounded-md` — all interactive controls (buttons, inputs, select, small containers)
+- `rounded-lg` — images, modals, large cards

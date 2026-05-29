@@ -1,2 +1,6 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
+
+@theme {
+  --spacing-nav: 3rem; /* 48px — nav bar height */
+}
