@@ -22,6 +22,7 @@
       "@/*": ["./src/*"],
       "@editor/*": ["./src/components/@editor/*", "./src/types/@editor/*", "./src/server/@editor/*", "./src/utils/@editor/*"],
       "@blog/*": ["./src/components/@blog/*", "./src/types/@blog/*", "./src/server/@blog/*", "./src/utils/@blog/*"],
+      "@admin/*": ["./src/components/@admin/*", "./src/types/@admin/*", "./src/server/@admin/*", "./src/utils/@admin/*"],
     },
   },
   "include": [
