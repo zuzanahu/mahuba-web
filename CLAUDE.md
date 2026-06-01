@@ -63,12 +63,16 @@ Blog rendering in `src/components/@blog/`:
 
 ### Server Actions
 
-All mutations are Next.js Server Actions in `src/server/@editor/`:
+Server actions handle mutations where the side effect (DB write, redirect, cache revalidation) is the point. All post mutations live in `src/server/@editor/`:
 
 - `createPost` — inserts post, redirects to `/admin/posts`
 - `updatePost` — updates title/slug/content, sanitizes slug
 - `deletePost` — deletes by id
 - `togglePublish` — transitions status between `"draft"` and `"published"`, sets/clears `publishedAt`
+
+### API Routes
+
+Use an API route when the caller needs a return value immediately to continue working in local state. Example: `POST /api/upload` writes a file and returns `{ path }` so the editor can show an image preview; the path is then persisted to the DB by the `updatePost` server action on the next autosave. This is a style choice — a server action could return a value too, but API routes are preferred here for file uploads because Next.js server actions have a 1 MB body size limit by default (raising it requires explicit config).
 
 ### Runtime type guards
 
@@ -86,6 +90,14 @@ Tailwind CSS v4 (imported via `@import "tailwindcss"` in `globals.css`). The `@t
 4. Update `isPostContent` to handle the new type
 5. Create a renderer component in `src/components/@blog/`
 6. Create an editor component in `src/components/@editor/`
+
+### Constants
+
+Shared constants live in `src/constants/`. Each file is named after the constant it exports, in camelCase — e.g. `DB_PATH` → `dbPath.ts`, `ALLOWED_IMAGE_TYPES` → `allowedImageTypes.ts`. One primary export per file.
+
+### Server-side validation
+
+Any data sent to the server — file uploads, form fields, query params — must be validated on the server regardless of what the client enforces. Client-side constraints (`accept`, `maxLength`, `required`) are UX hints only and can be bypassed. Validate type, shape, and size in the route handler or server action before touching the filesystem or database.
 
 ### Commenting
 

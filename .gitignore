@@ -48,3 +48,6 @@ next-env.d.ts
 
 # TypeDoc generated documentation
 /docs
+
+# User-uploaded files (created at runtime by /api/upload)
+/public/uploads
