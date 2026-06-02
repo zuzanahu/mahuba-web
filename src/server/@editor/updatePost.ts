@@ -27,6 +27,8 @@ import { eq } from "drizzle-orm";
  *   - `id` — Numeric primary key of the post to update (see {@link Post}).
  *   - `title` — New human-readable title for the post.
  *   - `slug` — New URL slug. Will be sanitised before being persisted (see above).
+ *   - `excerpt` — Post excerpt shown in blog listing and SEO meta. Nullable.
+ *   - `coverImage` — Public path to the cover image (e.g. `/uploads/foo.jpg`). Nullable.
  *   - `content` — New block editor content (see {@link PostContent}).
  *
  * @throws {Error} With the message `"Invalid slug"` if the sanitised slug
@@ -37,7 +39,7 @@ import { eq } from "drizzle-orm";
  * @example
  * ```ts
  * // Inside a client component:
- * await updatePost({ id: post.id, title, slug, content });
+ * await updatePost({ id: post.id, title, slug, excerpt, coverImage, content });
  * ```
  *
  * @see {@link createPost} to create a new post.
@@ -48,6 +50,8 @@ export async function updatePost(data: {
   id: number;
   title: string;
   slug: string;
+  excerpt: string | null;
+  coverImage: string | null;
   content: PostContent;
 }) {
   // Sanitize slug.
@@ -59,6 +63,8 @@ export async function updatePost(data: {
     .set({
       title: data.title,
       slug: safeSlug,
+      excerpt: data.excerpt,
+      coverImage: data.coverImage,
       content: data.content,
     })
     .where(eq(posts.id, data.id));
