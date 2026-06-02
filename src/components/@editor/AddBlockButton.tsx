@@ -37,5 +37,13 @@ export interface AddBlockButtonProps {
  * passes the `onAdd` handler down to this button.
  */
 export function AddBlockButton({ onAdd }: AddBlockButtonProps) {
-  return <button onClick={onAdd}>+ Add paragraph</button>;
+  return (
+    <button
+      type="button"
+      onClick={onAdd}
+      className="px-3 py-2 text-sm text-gray-400 border border-dashed border-gray-300 rounded-md hover:border-gray-400 hover:text-gray-600 transition-colors"
+    >
+      + Add paragraph
+    </button>
+  );
 }
