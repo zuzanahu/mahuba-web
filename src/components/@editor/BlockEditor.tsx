@@ -45,7 +45,7 @@ export interface BlockEditorProps {
  *
  * ### Extending with new block types
  * Add a branch to the `map` callback below (where the `TODO` comment is) that
- * switches on `block.type` to render different editors per type (e.g. E9–E13 ImageBlock).
+ * switches on `block.type` to render different editors per type (e.g. ImageBlock).
  *
  * @param BlockEditorProps
  */
