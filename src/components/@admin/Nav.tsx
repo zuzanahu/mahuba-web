@@ -1,85 +1,146 @@
 "use client";
 
-import {
+import React, {
   createContext,
   useContext,
+  useEffect,
   useLayoutEffect,
-  useRef,
   useState,
   type ReactNode,
-  type RefObject,
 } from "react";
-import { createPortal } from "react-dom";
+import Link from "next/link";
 
-interface NavContextValue {
-  leftRef: RefObject<HTMLDivElement | null>;
-  rightRef: RefObject<HTMLDivElement | null>;
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
+export interface NavAction {
+  label: string;
+  /** Optional icon rendered in place of the label. */
+  icon?: React.ReactNode;
+  variant?: "outline" | "dark";
+  disabled?: boolean;
+  /** Render as a link. Mutually exclusive with onClick. */
+  href?: string;
+  /** Render as a button. Mutually exclusive with href. */
+  onClick?: () => void;
 }
 
-const NavContext = createContext<NavContextValue>({
-  leftRef: { current: null },
-  rightRef: { current: null },
-});
+export interface NavConfig {
+  /** Back link on the left. Mutually exclusive with title. */
+  back?: { href: string; label: string };
+  /** Static page title on the left when there is no back link. */
+  title?: string;
+  /** Gray status text shown after back/title (e.g. autosave timestamp). */
+  status?: string;
+  /** Red error text shown after back/title. Takes precedence over status. */
+  error?: string;
+  /** Action buttons/links on the right. */
+  actions?: NavAction[];
+}
+
+const NavContext = createContext<((config: NavConfig) => void) | null>(null);
 
 /**
  * Wraps all admin pages with a sticky top nav bar.
  *
- * Renders two empty slot divs (left, right) that pages populate via
- * {@link NavSlot}.
+ * Pages declare their nav content via {@link NavSlot}.
  */
-export function NavProvider({ children }: { children: ReactNode }) {
-  const leftRef = useRef<HTMLDivElement>(null);
-  const rightRef = useRef<HTMLDivElement>(null);
+export function NavConfigProvider({ children }: { children: ReactNode }) {
+  const [config, setConfig] = useState<NavConfig>({});
 
   return (
-    <NavContext.Provider value={{ leftRef, rightRef }}>
+    <NavContext.Provider value={setConfig}>
       <div className="min-h-screen flex flex-col">
-        <nav className="flex items-center justify-between px-4 h-[49px] border-b border-gray-200 bg-white sticky top-0 z-10">
-          <div ref={leftRef} className="flex items-center gap-4" />
-          <div ref={rightRef} className="flex items-center gap-2" />
+        <nav className="flex items-center justify-between px-4 h-nav border-b border-gray-200 bg-white sticky top-0 z-10">
+          <div className="flex items-center gap-4">
+            {config.back ? (
+              <Link
+                href={config.back.href}
+                className="text-sm text-gray-600 hover:text-gray-900"
+              >
+                {config.back.label}
+              </Link>
+            ) : config.title ? (
+              <span className="text-sm font-medium text-gray-700">
+                {config.title}
+              </span>
+            ) : null}
+            {config.error ? (
+              <span className="text-sm text-red-500">{config.error}</span>
+            ) : config.status ? (
+              <span className="text-sm text-gray-400">{config.status}</span>
+            ) : null}
+          </div>
+          <div className="flex items-center gap-2">
+            {config.actions?.map((action) =>
+              action.href ? (
+                <Link
+                  key={action.label}
+                  href={action.href}
+                  aria-label={action.label}
+                  className={
+                    action.variant === "dark"
+                      ? "h-9 px-3 text-sm flex items-center bg-gray-900 text-white rounded-md hover:bg-gray-700"
+                      : "h-9 px-3 text-sm flex items-center border border-gray-300 rounded-md hover:bg-gray-50"
+                  }
+                >
+                  {action.icon ?? action.label}
+                </Link>
+              ) : (
+                <button
+                  key={action.label}
+                  type="button"
+                  onClick={action.onClick}
+                  disabled={action.disabled}
+                  aria-label={action.label}
+                  className={
+                    action.variant === "dark"
+                      ? "h-9 px-3 text-sm flex items-center bg-gray-900 text-white rounded-md hover:bg-gray-700 disabled:opacity-50"
+                      : "h-9 px-3 text-sm flex items-center border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
+                  }
+                >
+                  {action.icon ?? action.label}
+                </button>
+              )
+            )}
+          </div>
         </nav>
-        {children}
+        <main className="flex-1 flex flex-col">
+          {children}
+        </main>
       </div>
     </NavContext.Provider>
   );
 }
 
 /**
- * Portals content into the admin nav's left and/or right slots.
+ * Declares what the admin nav should show for the current page.
  *
- * Render this inside any admin page or component — state from the
- * surrounding component tree flows naturally through the portal.
+ * Place inside any admin page or component — the config is synced on every
+ * render, so dynamic values (status text, disabled state) stay live without
+ * extra wiring.
  *
  * @example
  * ```tsx
  * <NavSlot
- *   left={<Link href="/admin/posts">← Zpět</Link>}
- *   right={<button onClick={handlePublish}>Publikovat</button>}
+ *   back={{ href: "/admin/posts", label: "← Zpět na správu článků" }}
+ *   status={lastSaved ? `Automaticky uloženo ve ${formatTime(lastSaved)}` : undefined}
+ *   error={saveError ?? undefined}
+ *   actions={[
+ *     { label: "Náhled", onClick: handlePreview, variant: "outline" },
+ *     { label: "Publikovat", onClick: handlePublish, variant: "dark", disabled: isPending },
+ *   ]}
  * />
  * ```
  */
-export function NavSlot({
-  left,
-  right,
-}: {
-  left?: ReactNode;
-  right?: ReactNode;
-}) {
-  const { leftRef, rightRef } = useContext(NavContext);
-  const [mounted, setMounted] = useState(false);
+export function NavSlot(config: NavConfig) {
+  const setNavConfig = useContext(NavContext);
+  if (!setNavConfig) throw new Error("NavSlot must be used within NavProvider");
 
-  // useLayoutEffect fires before the browser paints, so the slots are
-  // populated before the first visible frame — no flash.
-  useLayoutEffect(() => {
-    setMounted(true);
-  }, []);
+  useIsomorphicLayoutEffect(() => {
+    setNavConfig(config);
+    return () => setNavConfig({});
+  });
 
-  if (!mounted) return null;
-
-  return (
-    <>
-      {left && leftRef.current && createPortal(left, leftRef.current)}
-      {right && rightRef.current && createPortal(right, rightRef.current)}
-    </>
-  );
+  return null;
 }

@@ -1,9 +1,9 @@
-import { NavProvider } from "@admin/Nav";
+import { NavConfigProvider } from "@admin/Nav";
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <NavProvider>{children}</NavProvider>;
+  return <NavConfigProvider>{children}</NavConfigProvider>;
 }
