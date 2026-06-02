@@ -16,7 +16,8 @@ import { eq } from "drizzle-orm";
  * ### Slug sanitisation
  * Before writing to the database, the supplied `slug` is sanitised by:
  * 1. Converting it to lower-case.
- * 2. Stripping every character that is not a lowercase ASCII letter, digit,
+ * 2. Replacing whitespace runs with a single hyphen.
+ * 3. Stripping every character that is not a lowercase ASCII letter, digit,
  *    or hyphen (`[^a-z0-9-]`).
  *
  * If the sanitised slug is an empty string the action throws immediately,
@@ -50,14 +51,14 @@ export async function updatePost(data: {
   content: PostContent;
 }) {
   // Sanitize slug.
-  const safeSlug = data.slug.toLowerCase().replace(/[^a-z0-9-]/g, "");
+  const safeSlug = data.slug.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
   if (!safeSlug) throw new Error("Invalid slug");
 
   await db
     .update(posts)
     .set({
       title: data.title,
-      slug: data.slug,
+      slug: safeSlug,
       content: data.content,
     })
     .where(eq(posts.id, data.id));
