@@ -23,18 +23,9 @@ export interface BlockEditorProps {
   initialPostContent: PostContent;
 
   /**
-   * Callback invoked when the user clicks the **Save** button.
-   *
-   * @remarks
-   * Receives the current {@link PostContent} snapshot and is expected to persist
-   * it — typically by calling a server action such as {@link createPost} or
-   * {@link updatePost}. The callback is `async` so that the caller can `await`
-   * the server round-trip before e.g. redirecting.
-   *
-   * @param postContent - The up-to-date array of {@link Block} instances at the
-   *   moment the user clicked Save.
+   * Called on every content change (add block, edit block).
    */
-  onSave: (postContent: PostContent) => Promise<void>;
+  onChange?: (postContent: PostContent) => void;
 }
 
 /**
@@ -46,86 +37,55 @@ export interface BlockEditorProps {
  * renders one {@link RichTextEditor} per {@link Block} in that array.
  *
  * ### Block lifecycle
- * - **Initialisation** — `initialPostContent` is used as the initial value of the
- *   internal `postContent` state. Subsequent changes to the prop are ignored.
+ * - **Initialisation** — `initialPostContent` seeds the internal state on mount.
  * - **Content updates** — Each {@link RichTextEditor} reports changes via
- *   `handleContentChange`, which performs an immutable update of the affected
- *   block using its {@link BlockId}.
+ *   `handleContentChange`. The new snapshot is forwarded to `onChange`.
  * - **Adding blocks** — {@link AddBlockButton} calls `handleAddBlock`, which
- *   appends a new empty `"richText"` {@link Block} (with a freshly generated
- *   {@link BlockId}) to the array.
- * - **Saving** — The **Save** button calls `onSave` with the current
- *   `postContent` snapshot. The parent is responsible for persisting the data
- *   (e.g. via {@link createPost} or {@link updatePost}).
+ *   appends a new empty `"richText"` block. The updated array is forwarded to `onChange`.
  *
  * ### Extending with new block types
- * Currently only {@link RichTextBlock} / `"richText"` blocks are supported. To
- * render a different editor for a new block type, add a branch to the `map`
- * callback below (where the `TODO` comment is) that switches on `block.type`.
+ * Add a branch to the `map` callback below (where the `TODO` comment is) that
+ * switches on `block.type` to render different editors per type (e.g. E9–E13 ImageBlock).
  *
  * @param BlockEditorProps
- *
- * @example
- * ```tsx
- * <BlockEditor
- *   initialPostContent={existingContent}
- *   onSave={(content) => updatePost({ id, title, slug, content })}
- * />
- * ```
- *
- * @see {@link NewPostEditor} — mounts `BlockEditor` with an empty content array.
- * @see {@link EditPostEditor} — mounts `BlockEditor` pre-populated with a saved post.
- * @see {@link RichTextEditor} — the per-block editor rendered for `"richText"` blocks.
- * @see {@link AddBlockButton} — the button that appends a new empty block.
  */
-export function BlockEditor({ initialPostContent, onSave }: BlockEditorProps) {
+export function BlockEditor({ initialPostContent, onChange }: BlockEditorProps) {
   const [postContent, setPostContent] =
     useState<PostContent>(initialPostContent);
 
   /**
-   * Updates a single block's content in local state by its {@link BlockId}.
-   *
-   * @remarks
-   * Called by each {@link RichTextEditor} instance via its `onContentChangeAction`
-   * prop whenever Tiptap emits an `"update"` event. The update is applied
-   * immutably: all blocks whose `id` does not match are kept as-is, and the
-   * matching block has its `content` replaced with the new {@link JSONContent}.
-   *
-   * @param id - The {@link BlockId} of the block to update.
-   * @param content - The new Tiptap {@link JSONContent} snapshot for the block.
+   * Updates a single block's content in local state by its {@link BlockId}
+   * and forwards the updated array to the `onChange` prop.
    */
   const handleContentChange = (id: BlockId, content: JSONContent) => {
-    setPostContent((prev) =>
-      prev.map((block) => (block.id === id ? { ...block, content } : block)),
+    const next = postContent.map((block) =>
+      block.id === id ? { ...block, content } : block,
     );
+    setPostContent(next);
+    onChange?.(next);
   };
 
   /**
-   * Appends a new empty `"richText"` {@link Block} to the {@link PostContent} array.
-   *
-   * @remarks
-   * Called by {@link AddBlockButton} when the user clicks "+ Add paragraph".
-   * A cryptographically random {@link BlockId} is generated via
-   * `crypto.randomUUID()` to uniquely identify the new block. The block's
-   * initial `content` is an empty ProseMirror document (`{ type: "doc", content: [] }`).
+   * Appends a new empty `"richText"` block and forwards the updated array
+   * to the `onChange` prop.
    */
   const handleAddBlock = () => {
-    const newBlock = {
-      id: crypto.randomUUID() as BlockId,
-      // Only richtext for now.
-      type: "richText" as const,
-      content: { type: "doc", content: [] } as JSONContent,
-    };
-    setPostContent((prev) => [...prev, newBlock]);
+    const next = [
+      ...postContent,
+      {
+        id: crypto.randomUUID() as BlockId,
+        type: "richText" as const,
+        content: { type: "doc", content: [] } as JSONContent,
+      },
+    ];
+    setPostContent(next);
+    onChange?.(next);
   };
 
   return (
     <div className="flex flex-col gap-4">
       {postContent.map((block) => (
-        // Each block is rendered with a RichTextEditor,
-        // which reports content changes via handleContentChange.
-        // TODO: Add logic to render different editor types based
-        // on block.type (e.g., image, code, etc.)
+        // TODO: Add branches for new block types (e.g. ImageBlock for E9–E13).
         <RichTextEditor
           key={block.id}
           block={block}
@@ -133,7 +93,6 @@ export function BlockEditor({ initialPostContent, onSave }: BlockEditorProps) {
         />
       ))}
       <AddBlockButton onAdd={handleAddBlock} />
-      <button onClick={() => onSave(postContent)}>Save</button>
     </div>
   );
 }
